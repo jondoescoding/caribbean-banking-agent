@@ -1,0 +1,19 @@
+{
+  "name": "caribbean-banking-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Read-only Caribbean banking agent surface for ChatGPT",
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @caribbean-banking-agent/backend",
+    "check": "npm run check --workspace @caribbean-banking-agent/backend",
+    "dev": "npm run dev --workspace @caribbean-banking-agent/backend",
+    "start": "npm run start --workspace @caribbean-banking-agent/backend",
+    "test": "npm run test --workspace @caribbean-banking-agent/backend"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

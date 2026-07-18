@@ -1,0 +1,35 @@
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+
+# Dependencies and builds
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Runtime output
+artifacts/logs/*
+artifacts/sessions/*
+artifacts/captures/*
+artifacts/reports/*
+artifacts/scratch/*
+!artifacts/**/README.md
+
+# Browser automation state
+artifacts/cache/*
+!artifacts/cache/README.md
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

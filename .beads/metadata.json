@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "buildathon",
+  "project_id": "c1dfbe45-7419-4e3b-8f17-17839651d324"
+}
