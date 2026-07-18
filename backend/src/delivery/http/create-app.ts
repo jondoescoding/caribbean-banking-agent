@@ -1,7 +1,3 @@
-import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { StreamableHTTPServerTransportOptions } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import helmet from "helmet";
@@ -9,7 +5,6 @@ import { z } from "zod";
 import type { BankingReadService } from "../../application/banking-read-service.js";
 import { AccountIdSchema, HoldingsQuerySchema, TransactionsQuerySchema } from "../../domain/banking.js";
 import { toPublicError } from "../errors.js";
-import { createBankingMcpServer } from "../mcp/create-mcp-server.js";
 
 const HoldingsHttpQuerySchema = z.object({
   accountId: AccountIdSchema.optional(),
@@ -22,7 +17,7 @@ const TransactionsHttpQuerySchema = z.object({
 });
 
 export function createApp(service: BankingReadService, mode: "fixture" | "live") {
-  const app = createMcpExpressApp({ host: "127.0.0.1" });
+  const app = express();
   app.disable("x-powered-by");
   app.use(helmet());
   app.use(express.json({ limit: "32kb", strict: true }));
@@ -52,44 +47,6 @@ export function createApp(service: BankingReadService, mode: "fixture" | "live")
     });
     response.json(await service.listTransactions(query));
   });
-
-  app.post("/mcp", async (request, response) => {
-    const server = createBankingMcpServer(service);
-    // The SDK documents `undefined` as its stateless-mode switch, but its current
-    // declaration omits `undefined` when exact optional properties are enabled.
-    const transportOptions = {
-      sessionIdGenerator: undefined,
-    } as unknown as StreamableHTTPServerTransportOptions;
-    const transport = new StreamableHTTPServerTransport(transportOptions);
-
-    try {
-      await server.connect(transport as unknown as Transport);
-      await transport.handleRequest(request, response, request.body);
-    } catch {
-      if (!response.headersSent) {
-        response.status(500).json({
-          jsonrpc: "2.0",
-          error: { code: -32603, message: "Internal server error" },
-          id: null,
-        });
-      }
-    } finally {
-      response.on("close", () => {
-        void transport.close();
-        void server.close();
-      });
-    }
-  });
-
-  const methodNotAllowed = (_request: Request, response: Response) => {
-    response.status(405).json({
-      jsonrpc: "2.0",
-      error: { code: -32000, message: "Method not allowed" },
-      id: null,
-    });
-  };
-  app.get("/mcp", methodNotAllowed);
-  app.delete("/mcp", methodNotAllowed);
 
   app.use((_request, response) => {
     response.status(404).json({

@@ -15,6 +15,7 @@ const EnvironmentSchema = z
     BROWSERBASE_CONTEXT_ID: OptionalNonEmptyStringSchema,
     JMMB_USERNAME: OptionalNonEmptyStringSchema,
     JMMB_PASSWORD: OptionalNonEmptyStringSchema,
+    JMMB_ENTRY_URL: z.url().default("https://moneyline.jmmb.com/country.php?type=jm-mbk&lang=en"),
     JMMB_LOGIN_URL: z.url().default("https://moneyline.jmmb.com/personal/login.php"),
     JMMB_ACCOUNTS_URL: z.url().default("https://moneyline.jmmb.com/personal/app/accsum/"),
     JMMB_LIVE_ENABLED: z.enum(["true", "false"]).default("false"),
@@ -38,6 +39,7 @@ export type LiveAppConfig = CommonConfig & {
   browserbaseContextId?: string;
   jmmbUsername: string;
   jmmbPassword: string;
+  jmmbEntryUrl: string;
   jmmbLoginUrl: string;
   jmmbAccountsUrl: string;
 };
@@ -74,6 +76,7 @@ export function parseConfig(environment: NodeJS.ProcessEnv): AppConfig {
     ...(parsed.BROWSERBASE_CONTEXT_ID === undefined
       ? {}
       : { browserbaseContextId: parsed.BROWSERBASE_CONTEXT_ID }),
+    jmmbEntryUrl: parsed.JMMB_ENTRY_URL,
     jmmbLoginUrl: parsed.JMMB_LOGIN_URL,
     jmmbAccountsUrl: parsed.JMMB_ACCOUNTS_URL,
   };

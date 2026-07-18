@@ -1,3 +1,3 @@
 # Scratch
 
-Disposable experiments and one-off local output belong here. Promote durable knowledge into `docs/` and durable work state into Beads.
+Disposable experiments and one-off local output belong here. Promote durable knowledge into `openwiki/` and durable work state into Beads.

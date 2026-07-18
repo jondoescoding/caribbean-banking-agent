@@ -1,14 +1,14 @@
-# Caribbean Banking Agent
+# Caribbean Banking API
 
-A read-only agent surface for Caribbean online banking, built for the [Future Caribbean Global AI Buildathon](https://futurecaribbean.com). Version 1 exposes JMMB portfolio, account, holding, and transaction data as focused MCP tools that ChatGPT can call, while Browserbase and Stagehand handle the legacy web portal behind the tool boundary.
+A read-only API for Caribbean online banking, built for the [Future Caribbean Global AI Buildathon](https://futurecaribbean.com). Browserbase runs the legacy JMMB portal as a cloud-browser service, Stagehand performs repeatable navigation and extraction, and Express exposes validated portfolio, account, holding, and transaction responses.
 
-Version 1 has no custom user interface and no money-moving capability. The `frontend/` boundary is reserved for a later dashboard; the executable product is the `backend/` MCP and HTTP service.
+Version 1 has no custom user interface, agent tool protocol, or money-moving capability. The executable product is an ordinary REST backend; `frontend/` reserves a later presentation boundary.
 
 ## Repository map
 
-- `backend/` contains the TypeScript domain, Browserbase adapter, HTTP API, and MCP server.
+- `backend/` contains the TypeScript domain, Browserbase adapter, and REST API.
 - `frontend/` records the intentionally deferred UI boundary.
-- `docs/` is a linked knowledge graph for product, architecture, integrations, operations, and delivery decisions.
+- `openwiki/` is the repository's OKF-compatible engineering wiki.
 - `artifacts/` categorizes local logs, browser session metadata, captures, reports, caches, and scratch output without cluttering source control.
 
 ## Local development
@@ -26,7 +26,7 @@ npm test
 npm run build
 ```
 
-See [docs/README.md](docs/README.md) for the knowledge graph and [docs/CODING_PARADIGMS.md](docs/CODING_PARADIGMS.md) for the coding model.
+Start with the [OpenWiki home](openwiki/index.md), then use the [quickstart](openwiki/quickstart.md) or [architecture overview](openwiki/architecture/overview.md).
 
 ## Task tracking
 

@@ -4,6 +4,7 @@ import {
   mapAccount,
   mapPortfolioSummary,
 } from "../../src/adapters/browserbase/jmmb-mappers.js";
+import { isJmmbAuthenticationLocation } from "../../src/adapters/browserbase/browserbase-jmmb-read-adapter.js";
 import { parseConfig } from "../../src/config.js";
 
 describe("safe adapter boundary", () => {
@@ -21,6 +22,38 @@ describe("safe adapter boundary", () => {
 
   it("requires all credentials before live mode can exist", () => {
     expect(() => parseConfig({ JMMB_LIVE_ENABLED: "true" })).toThrow();
+  });
+
+  it("uses the Jamaica entry point before the personal login flow", () => {
+    expect(
+      parseConfig({
+        JMMB_LIVE_ENABLED: "true",
+        BROWSERBASE_API_KEY: "test-browserbase-key",
+        JMMB_USERNAME: "test-user",
+        JMMB_PASSWORD: "test-password",
+      }),
+    ).toMatchObject({
+      mode: "live",
+      jmmbEntryUrl: "https://moneyline.jmmb.com/country.php?type=jm-mbk&lang=en",
+      jmmbLoginUrl: "https://moneyline.jmmb.com/personal/login.php",
+    });
+  });
+
+  it("recognizes both login and access-denied authentication redirects", () => {
+    expect(
+      isJmmbAuthenticationLocation("https://moneyline.jmmb.com/personal/login.php"),
+    ).toBe(true);
+    expect(
+      isJmmbAuthenticationLocation(
+        "https://moneyline.jmmb.com/personal/error.php?vu=NOACCESS",
+      ),
+    ).toBe(true);
+    expect(
+      isJmmbAuthenticationLocation("https://moneyline.jmmb.com/personal/error.php"),
+    ).toBe(true);
+    expect(
+      isJmmbAuthenticationLocation("https://moneyline.jmmb.com/personal/app/accsum/"),
+    ).toBe(false);
   });
 
   it("returns generic fixture data and filters by stable account references", async () => {

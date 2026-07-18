@@ -1,4 +1,5 @@
 import { Stagehand } from "@browserbasehq/stagehand";
+import { fileURLToPath } from "node:url";
 import type { BankingReadPort } from "../../application/banking-read-port.js";
 import { BankingReadError } from "../../application/errors.js";
 import type { LiveAppConfig } from "../../config.js";
@@ -26,6 +27,10 @@ type StagehandSession = {
   stagehand: Stagehand;
   sessionUrl?: string;
 };
+
+const stagehandCacheDir = fileURLToPath(
+  new URL("../../../../artifacts/cache/jmmb-read-actions", import.meta.url),
+);
 
 export class BrowserbaseJmmbReadAdapter implements BankingReadPort {
   public constructor(private readonly config: LiveAppConfig) {}
@@ -106,8 +111,9 @@ export class BrowserbaseJmmbReadAdapter implements BankingReadPort {
     const stagehand = new Stagehand({
       env: "BROWSERBASE",
       apiKey: this.config.browserbaseApiKey,
-      cacheDir: "../artifacts/cache/jmmb-read-actions",
+      cacheDir: stagehandCacheDir,
       disablePino: true,
+      verbose: 0,
       ...(context === undefined
         ? {}
         : {
@@ -121,20 +127,24 @@ export class BrowserbaseJmmbReadAdapter implements BankingReadPort {
       await stagehand.init();
       await stagehand.context.setDomainPolicy({ allowedDomains: ["moneyline.jmmb.com"] });
       const page = stagehand.context.activePage() ?? (await stagehand.context.newPage());
-      await page.goto(this.config.jmmbAccountsUrl, {
-        waitUntil: "domcontentloaded",
-        timeoutMs: 20_000,
-      });
 
-      if (this.isLoginPage(page.url())) {
+      if (context === undefined) {
         await this.login(stagehand);
+      } else {
+        await page.goto(this.config.jmmbAccountsUrl, {
+          waitUntil: "domcontentloaded",
+          timeoutMs: 20_000,
+        });
+        if (isJmmbAuthenticationLocation(page.url())) {
+          await this.login(stagehand);
+        }
       }
 
       await page.goto(this.config.jmmbAccountsUrl, {
         waitUntil: "domcontentloaded",
         timeoutMs: 20_000,
       });
-      if (this.isLoginPage(page.url())) {
+      if (isJmmbAuthenticationLocation(page.url())) {
         throw new BankingReadError(
           "AUTHENTICATION_REQUIRED",
           "The banking session needs interactive authentication",
@@ -162,25 +172,33 @@ export class BrowserbaseJmmbReadAdapter implements BankingReadPort {
   }
 
   private async login(stagehand: Stagehand): Promise<void> {
-    const page = stagehand.context.activePage();
+    let page = stagehand.context.activePage();
     if (page === undefined) {
       throw new BankingReadError("UPSTREAM_UNAVAILABLE", "The browser page is unavailable");
     }
 
+    await page.goto(this.config.jmmbEntryUrl, {
+      waitUntil: "domcontentloaded",
+      timeoutMs: 20_000,
+    });
+    page = stagehand.context.activePage() ?? page;
     await page.goto(this.config.jmmbLoginUrl, {
       waitUntil: "domcontentloaded",
       timeoutMs: 20_000,
     });
-    await stagehand.act("Type %username% into the username field", {
-      page,
-      variables: { username: this.config.jmmbUsername },
-    });
-    await stagehand.act("Type %password% into the password field", {
-      page,
-      variables: { password: this.config.jmmbPassword },
-    });
-    await stagehand.act("Click the sign-in button", { page });
+    page = stagehand.context.activePage() ?? page;
+    await page.waitForSelector("#txtUser", { state: "visible", timeout: 20_000 });
+    await page.locator("#txtUser").fill(this.config.jmmbUsername);
+    await page.locator("#txtPwd").fill(this.config.jmmbPassword);
+    await page.locator("#loginbtn").click();
     await page.waitForLoadState("domcontentloaded", 20_000);
+    page = stagehand.context.activePage() ?? page;
+    if (isJmmbAuthenticationLocation(page.url())) {
+      throw new BankingReadError(
+        "AUTHENTICATION_REQUIRED",
+        "The banking portal did not accept the login attempt",
+      );
+    }
   }
 
   private async extractAccounts(stagehand: Stagehand): Promise<RawAccount[]> {
@@ -189,10 +207,6 @@ export class BrowserbaseJmmbReadAdapter implements BankingReadPort {
       RawAccountsSchema,
     );
     return raw.accounts;
-  }
-
-  private isLoginPage(url: string): boolean {
-    return url.includes("/personal/login") || url.endsWith("/login.php");
   }
 
   private assertReadOnlyLocation(url: string | undefined): void {
@@ -212,4 +226,17 @@ export class BrowserbaseJmmbReadAdapter implements BankingReadPort {
       );
     }
   }
+}
+
+export function isJmmbAuthenticationLocation(url: string): boolean {
+  const parsed = new URL(url);
+  if (parsed.hostname !== "moneyline.jmmb.com") {
+    return false;
+  }
+
+  return (
+    parsed.pathname.includes("/personal/login") ||
+    parsed.pathname.endsWith("/login.php") ||
+    parsed.pathname.endsWith("/personal/error.php")
+  );
 }

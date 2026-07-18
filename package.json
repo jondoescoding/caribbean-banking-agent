@@ -2,7 +2,7 @@
   "name": "caribbean-banking-agent",
   "version": "0.1.0",
   "private": true,
-  "description": "Read-only Caribbean banking agent surface for ChatGPT",
+  "description": "Read-only Caribbean banking API backed by Browserbase",
   "workspaces": [
     "backend"
   ],

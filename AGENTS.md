@@ -2,11 +2,11 @@
 
 ## Application Engineering
 
-This repository is the read-only v1 of a Caribbean banking agent for the [Future Caribbean Global AI Buildathon](https://futurecaribbean.com), in the [Finance, Payments & MSME Capital track](https://futurecaribbean.com/tracks/financial). It exposes JMMB account data to ChatGPT through MCP, with Browserbase and Stagehand driving the bank portal.
+This repository is the read-only v1 of a Caribbean banking API for the [Future Caribbean Global AI Buildathon](https://futurecaribbean.com), in the [Finance, Payments & MSME Capital track](https://futurecaribbean.com/tracks/financial). Browserbase and Stagehand drive the JMMB portal behind ordinary REST endpoints.
 
-Read [docs/README.md](docs/README.md) before architecture work and maintain [docs/CODING_PARADIGMS.md](docs/CODING_PARADIGMS.md) in the same bead that changes a framework, runtime boundary, state model, or recurring pattern.
+Read [openwiki/index.md](openwiki/index.md) before architecture work and maintain the relevant concept and index pages in the same bead that changes a framework, runtime boundary, state model, or recurring pattern.
 
-Version 1 is strictly read-only. Do not add, expose, simulate against production, or test any transfer, stock trade, payee, statement-generation, cheque, reminder, message, or other mutating banking action. Do not open JMMB or use personal banking credentials unless the user explicitly approves that live session in the current task.
+Version 1 is strictly read-only and REST-only. Do not add an agent tool protocol, or add, expose, simulate against production, or test any transfer, stock trade, payee, statement-generation, cheque, reminder, message, or other mutating banking action. Do not open JMMB or use personal banking credentials unless the user explicitly approves that live session in the current task.
 
 Run `npm run check`, `npm test`, and `npm run build` before closing implementation beads. Tests use fixtures; live banking is never an automated test target.
 
