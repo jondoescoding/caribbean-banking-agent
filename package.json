@@ -2,6 +2,7 @@
   "name": "caribbean-banking-agent",
   "version": "0.1.0",
   "private": true,
+  "license": "Apache-2.0",
   "description": "Read-only Caribbean banking API backed by Browserbase",
   "workspaces": [
     "backend"
