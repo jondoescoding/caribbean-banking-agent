@@ -28,6 +28,12 @@ npm run build
 
 Start with the [OpenWiki home](openwiki/index.md), then use the [quickstart](openwiki/quickstart.md) or [architecture overview](openwiki/architecture/overview.md).
 
+## Independent project and responsible use
+
+This is an independent open-source project. It is not affiliated with, endorsed by, or sponsored by JMMB, JN Group, or any financial institution.
+
+Users are responsible for complying with applicable laws, institutional terms, privacy requirements, and security policies. Never commit banking credentials, customer information, live account data, or other sensitive financial information. Keep live access disabled unless the account owner has deliberately authorized the session and the relevant institution permits the activity.
+
 ## Task tracking
 
 This project uses [Beads](https://github.com/gastownhall/beads) as its durable task and agent-memory layer. The CLI is installed globally and the repository uses an embedded Dolt database under `.beads/`.
@@ -41,3 +47,7 @@ bd close <id> --reason "What changed and how it was verified"
 ```
 
 Use Beads for work state and dependencies. Keep implementation and architecture knowledge in the repository docs, where it can be reviewed beside the code.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
